@@ -7,6 +7,10 @@ import { Send, Paperclip, Smile, Loader2 } from 'lucide-react';
 import api from '@/lib/api';
 import socketService from '@/lib/socket';
 import { useAuthStore } from '@/store/authStore';
+import dynamic from 'next/dynamic';
+
+// Dynamically import emoji picker to avoid SSR issues
+const EmojiPicker = dynamic(() => import('emoji-picker-react'), { ssr: false });
 
 interface MessageInputProps {
     chatId: string;
@@ -19,6 +23,7 @@ export function MessageInput({ chatId, onMessageSent }: MessageInputProps) {
     const [isTyping, setIsTyping] = useState(false);
     const [sending, setSending] = useState(false);
     const [uploading, setUploading] = useState(false);
+    const [showEmojiPicker, setShowEmojiPicker] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const typingTimeoutRef = useRef<NodeJS.Timeout>();
 
@@ -91,6 +96,11 @@ export function MessageInput({ chatId, onMessageSent }: MessageInputProps) {
         }
     };
 
+    const handleEmojiClick = (emojiData: any) => {
+        setMessage(prev => prev + emojiData.emoji);
+        setShowEmojiPicker(false);
+    };
+
     const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
@@ -138,7 +148,18 @@ export function MessageInput({ chatId, onMessageSent }: MessageInputProps) {
     };
 
     return (
-        <div className="border-t border-border bg-background p-4">
+        <div className="border-t border-border bg-background p-4 relative">
+            {/* Emoji Picker */}
+            {showEmojiPicker && (
+                <div className="absolute bottom-20 right-4 z-50 shadow-2xl rounded-lg overflow-hidden">
+                    <EmojiPicker
+                        onEmojiClick={handleEmojiClick}
+                        width={350}
+                        height={400}
+                    />
+                </div>
+            )}
+
             <div className="flex items-end gap-2">
                 {/* File upload button */}
                 <Button
@@ -162,11 +183,12 @@ export function MessageInput({ chatId, onMessageSent }: MessageInputProps) {
                     onChange={handleFileUpload}
                 />
 
-                {/* Emoji button (placeholder) */}
+                {/* Emoji button */}
                 <Button
                     variant="ghost"
                     size="icon"
                     className="rounded-full"
+                    onClick={() => setShowEmojiPicker(!showEmojiPicker)}
                     disabled={sending || uploading}
                 >
                     <Smile className="h-5 w-5" />
