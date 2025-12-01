@@ -167,7 +167,7 @@ export function VideoCall({ chatId, callerId, isInitiator, onCallEnd }: VideoCal
     return (
         <div className="fixed inset-0 bg-black z-50 flex flex-col">
             {/* Remote Video (Large) */}
-            <div className="flex-1 relative bg-gray-900">
+            <div className="flex-1 relative bg-gray-900 overflow-hidden">
                 <video
                     ref={remoteVideoRef}
                     autoPlay
@@ -176,16 +176,16 @@ export function VideoCall({ chatId, callerId, isInitiator, onCallEnd }: VideoCal
                 />
 
                 {callStatus === 'connecting' && (
-                    <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/50">
                         <div className="text-center text-white">
-                            <div className="text-2xl mb-4">📞</div>
+                            <div className="text-4xl mb-4 animate-pulse">📞</div>
                             <p className="text-xl">Connecting...</p>
                         </div>
                     </div>
                 )}
 
                 {/* Local Video (Small) */}
-                <div className="absolute top-4 right-4 w-48 h-36 bg-gray-800 rounded-lg overflow-hidden shadow-lg">
+                <div className="absolute top-4 right-4 w-48 h-36 bg-gray-800 rounded-lg overflow-hidden shadow-lg border-2 border-white/20">
                     <video
                         ref={localVideoRef}
                         autoPlay
@@ -196,33 +196,36 @@ export function VideoCall({ chatId, callerId, isInitiator, onCallEnd }: VideoCal
                 </div>
             </div>
 
-            {/* Controls */}
-            <div className="bg-gray-900 p-6 flex justify-center items-center gap-4">
+            {/* Controls - Fixed at bottom with safe area */}
+            <div className="bg-gradient-to-t from-black via-black/90 to-transparent p-6 pb-8 flex justify-center items-center gap-6 shrink-0">
                 <Button
                     variant={isMuted ? 'destructive' : 'secondary'}
                     size="icon"
-                    className="rounded-full w-14 h-14"
+                    className="rounded-full w-16 h-16 hover:scale-110 transition-transform shadow-lg"
                     onClick={toggleMute}
+                    title={isMuted ? 'Unmute' : 'Mute'}
                 >
-                    {isMuted ? <MicOff className="h-6 w-6" /> : <Mic className="h-6 w-6" />}
+                    {isMuted ? <MicOff className="h-7 w-7" /> : <Mic className="h-7 w-7" />}
                 </Button>
 
                 <Button
                     variant="destructive"
                     size="icon"
-                    className="rounded-full w-16 h-16"
+                    className="rounded-full w-20 h-20 hover:scale-110 transition-transform shadow-lg animate-pulse"
                     onClick={endCall}
+                    title="End Call"
                 >
-                    <PhoneOff className="h-8 w-8" />
+                    <PhoneOff className="h-9 w-9" />
                 </Button>
 
                 <Button
                     variant={isVideoOff ? 'destructive' : 'secondary'}
                     size="icon"
-                    className="rounded-full w-14 h-14"
+                    className="rounded-full w-16 h-16 hover:scale-110 transition-transform shadow-lg"
                     onClick={toggleVideo}
+                    title={isVideoOff ? 'Turn on camera' : 'Turn off camera'}
                 >
-                    {isVideoOff ? <VideoOff className="h-6 w-6" /> : <Video className="h-6 w-6" />}
+                    {isVideoOff ? <VideoOff className="h-7 w-7" /> : <Video className="h-7 w-7" />}
                 </Button>
             </div>
 
