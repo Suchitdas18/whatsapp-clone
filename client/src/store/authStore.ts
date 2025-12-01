@@ -10,6 +10,8 @@ interface User {
     publicKey: string;
     isOnline: boolean;
     lastSeen: Date;
+    createdAt?: Date;
+    updatedAt?: Date;
 }
 
 interface AuthState {
