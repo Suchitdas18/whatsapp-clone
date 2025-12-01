@@ -30,6 +30,12 @@ export default function ChatPage() {
         // Connect to socket
         socketService.connect(token);
 
+        // Request notification permission
+        if (typeof window !== 'undefined') {
+            const { requestNotificationPermission } = require('@/lib/notifications');
+            requestNotificationPermission();
+        }
+
         // Cleanup on unmount
         return () => {
             socketService.disconnect();

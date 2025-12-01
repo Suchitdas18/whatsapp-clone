@@ -20,7 +20,12 @@ export function MessageBubble({ message }: MessageBubbleProps) {
         switch (message.type) {
             case 'image':
                 return (
-                    <div className="mb-2 rounded-lg overflow-hidden max-w-sm">
+                    <a
+                        href={message.fileUrl || ''}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="block mb-2 rounded-lg overflow-hidden max-w-sm cursor-pointer hover:opacity-90 transition-opacity"
+                    >
                         <Image
                             src={message.fileUrl || ''}
                             alt={message.fileName || 'Image'}
@@ -28,37 +33,51 @@ export function MessageBubble({ message }: MessageBubbleProps) {
                             height={300}
                             className="w-full h-auto object-cover"
                         />
-                    </div>
+                    </a>
                 );
             case 'video':
                 return (
-                    <div className="mb-2 flex items-center gap-2 p-3 bg-secondary/50 rounded-lg">
-                        <Film className="w-8 h-8 text-primary" />
+                    <a
+                        href={message.fileUrl || ''}
+                        download={message.fileName}
+                        className="mb-2 flex items-center gap-2 p-3 bg-secondary/50 rounded-lg cursor-pointer hover:bg-secondary/70 transition-colors"
+                    >
+                        <Film className="w-8 h-8 text-primary flex-shrink-0" />
                         <div className="flex-1 min-w-0">
                             <p className="text-sm font-medium truncate">{message.fileName}</p>
-                            <p className="text-xs text-muted-foreground">Video</p>
+                            <p className="text-xs text-muted-foreground">Video • Click to download</p>
                         </div>
-                    </div>
+                    </a>
                 );
             case 'document':
                 return (
-                    <div className="mb-2 flex items-center gap-2 p-3 bg-secondary/50 rounded-lg">
-                        <FileText className="w-8 h-8 text-primary" />
+                    <a
+                        href={message.fileUrl || ''}
+                        download={message.fileName}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="mb-2 flex items-center gap-2 p-3 bg-secondary/50 rounded-lg cursor-pointer hover:bg-secondary/70 transition-colors"
+                    >
+                        <FileText className="w-8 h-8 text-primary flex-shrink-0" />
                         <div className="flex-1 min-w-0">
                             <p className="text-sm font-medium truncate">{message.fileName}</p>
-                            <p className="text-xs text-muted-foreground">Document</p>
+                            <p className="text-xs text-muted-foreground">Document • Click to open/download</p>
                         </div>
-                    </div>
+                    </a>
                 );
             case 'audio':
                 return (
-                    <div className="mb-2 flex items-center gap-2 p-3 bg-secondary/50 rounded-lg">
-                        <Music className="w-8 h-8 text-primary" />
+                    <a
+                        href={message.fileUrl || ''}
+                        download={message.fileName}
+                        className="mb-2 flex items-center gap-2 p-3 bg-secondary/50 rounded-lg cursor-pointer hover:bg-secondary/70 transition-colors"
+                    >
+                        <Music className="w-8 h-8 text-primary flex-shrink-0" />
                         <div className="flex-1 min-w-0">
                             <p className="text-sm font-medium truncate">{message.fileName}</p>
-                            <p className="text-xs text-muted-foreground">Audio</p>
+                            <p className="text-xs text-muted-foreground">Audio • Click to download</p>
                         </div>
-                    </div>
+                    </a>
                 );
             default:
                 return null;
@@ -93,8 +112,8 @@ export function MessageBubble({ message }: MessageBubbleProps) {
                 {/* Message content */}
                 <div
                     className={`rounded-lg px-4 py-2 ${isSent
-                            ? 'bg-primary text-primary-foreground'
-                            : 'bg-secondary text-secondary-foreground'
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-secondary text-secondary-foreground'
                         }`}
                 >
                     {/* Reply reference */}

@@ -82,6 +82,17 @@ export function ChatRoom() {
                 // Mark as delivered if not sent by current user
                 if (message.sender._id !== user?._id) {
                     socketService.messageDelivered(message._id);
+
+                    // Show notification
+                    if (typeof window !== 'undefined' && document.hidden) {
+                        const { showMessageNotification } = require('@/lib/notifications');
+                        showMessageNotification(
+                            message.sender.name,
+                            message.content || 'Sent a file',
+                            message.sender.avatar
+                        );
+                    }
+
                     // Auto-mark as seen after a short delay
                     setTimeout(() => {
                         socketService.messageSeen(message._id, chatId);
@@ -177,6 +188,12 @@ export function ChatRoom() {
     useEffect(() => {
         const handleIncomingCall = (data: { chatId: string; callerId: string; callerName: string; callerAvatar?: string }) => {
             setIncomingCall(data);
+
+            // Show notification
+            if (typeof window !== 'undefined') {
+                const { showCallNotification } = require('@/lib/notifications');
+                showCallNotification(data.callerName, true, data.callerAvatar);
+            }
         };
 
         const handleCallRejected = () => {
