@@ -11,6 +11,8 @@ import api from '@/lib/api';
 import { getInitials } from '@/lib/utils';
 import Link from 'next/link';
 
+export const dynamic = 'force-dynamic';
+
 export default function ProfilePage() {
     const router = useRouter();
     const { user, updateUser } = useAuthStore();
