@@ -25,6 +25,8 @@ interface User {
     email: string;
     avatar?: string;
     isOnline: boolean;
+    createdAt?: Date;
+    updatedAt?: Date;
 }
 
 export function ChatList() {
@@ -214,8 +216,8 @@ export function ChatList() {
                                             key={chat._id}
                                             onClick={() => setCurrentChat(chat)}
                                             className={`flex items-center gap-3 p-4 cursor-pointer transition-colors ${isActive
-                                                    ? 'bg-accent'
-                                                    : 'hover:bg-accent/50'
+                                                ? 'bg-accent'
+                                                : 'hover:bg-accent/50'
                                                 }`}
                                         >
                                             <div className="relative">
@@ -243,7 +245,7 @@ export function ChatList() {
 
                                                 <div className="flex items-center justify-between">
                                                     <div className="flex items-center gap-1 min-w-0 flex-1">
-                                                        {chat.lastMessage?.sender._id === user?._id && (
+                                                        {chat.lastMessage && chat.lastMessage.sender._id === user?._id && (
                                                             <MessageStatus status={chat.lastMessage.status} className="flex-shrink-0" />
                                                         )}
                                                         <p className="text-sm text-muted-foreground truncate">

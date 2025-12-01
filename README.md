@@ -138,4 +138,4 @@ MIT License - feel free to use this project for learning or commercial purposes.
 
 ## 👨‍💻 Author
 
-Built with ❤️ by Antigravity AI
+Built with ❤️ 
