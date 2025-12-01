@@ -77,8 +77,28 @@ export const setupSocketHandlers = (io: SocketIOServer): void => {
         });
 
         // Video call events
-        socket.on('video_call_request', (data: { chatId: string; callerId: string; callerName: string; callerAvatar?: string }) => {
-            socket.to(data.chatId).emit('video_call_request', data);
+        socket.on('video_call_request', async (data: { chatId: string; callerId: string; callerName: string; callerAvatar?: string }) => {
+            try {
+                // Get chat participants
+                const chat = await Chat.findById(data.chatId).populate('participants', '_id');
+                if (!chat) return;
+
+                // Send to all participants except caller
+                chat.participants.forEach((participant: any) => {
+                    const participantId = participant._id.toString();
+                    if (participantId !== data.callerId) {
+                        const recipientSocketId = onlineUsers.get(participantId);
+                        if (recipientSocketId) {
+                            io.to(recipientSocketId).emit('video_call_request', data);
+                        }
+                    }
+                });
+
+                // Also send to chat room for those who have it open
+                socket.to(data.chatId).emit('video_call_request', data);
+            } catch (error) {
+                console.error('Error handling video call request:', error);
+            }
         });
 
         socket.on('video_call_offer', (data: { chatId: string; offer: any }) => {
