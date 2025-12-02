@@ -17,10 +17,11 @@ export default function RegisterPage() {
     const verified = searchParams.get('verified') === 'true';
     const emailParam = searchParams.get('email') || '';
 
-    const [step, setStep] = useState(verified ? 2 : 1); // 1: collect email, 2: collect details
+    // Always start at step 1 unless explicitly verified via URL
+    const [step, setStep] = useState(1);
     const [formData, setFormData] = useState({
         name: '',
-        email: emailParam,
+        email: '',
         password: '',
         confirmPassword: '',
     });
@@ -28,6 +29,7 @@ export default function RegisterPage() {
     const [error, setError] = useState('');
 
     useEffect(() => {
+        // Only move to step 2 if we have verified=true and email in URL
         if (verified && emailParam) {
             setFormData(prev => ({ ...prev, email: emailParam }));
             setStep(2);
@@ -116,7 +118,7 @@ export default function RegisterPage() {
                         Create Account
                     </h1>
                     <p className="text-muted-foreground">
-                        Join and start chatting with friends
+                        {step === 1 ? 'Verify your email to get started' : 'Complete your registration'}
                     </p>
                 </div>
 
@@ -125,6 +127,11 @@ export default function RegisterPage() {
                     {step === 1 ? (
                         // Step 1: Enter Email for OTP
                         <form onSubmit={handleSendOTP} className="space-y-5">
+                            {/* Info Alert */}
+                            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-400 px-4 py-3 rounded-md text-sm">
+                                📧 We'll send a verification code to your email
+                            </div>
+
                             {error && (
                                 <div className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-md text-sm">
                                     {error}
@@ -146,9 +153,6 @@ export default function RegisterPage() {
                                     disabled={loading}
                                     className="w-full"
                                 />
-                                <p className="text-xs text-muted-foreground">
-                                    We'll send you a verification code
-                                </p>
                             </div>
 
                             <Button
@@ -159,10 +163,10 @@ export default function RegisterPage() {
                                 {loading ? (
                                     <>
                                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                        Sending code...
+                                        Sending verification code...
                                     </>
                                 ) : (
-                                    'Continue'
+                                    'Send Verification Code'
                                 )}
                             </Button>
                         </form>
@@ -178,7 +182,7 @@ export default function RegisterPage() {
                             {/* Email verified indicator */}
                             <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-400 px-4 py-3 rounded-md text-sm flex items-center gap-2">
                                 <CheckCircle className="w-4 h-4" />
-                                Email verified: {formData.email}
+                                ✓ Email verified: {formData.email}
                             </div>
 
                             <div className="space-y-2">
