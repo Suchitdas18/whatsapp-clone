@@ -14,7 +14,7 @@ export const searchContacts = async (
 ): Promise<void> => {
     try {
         const { query } = req.body;
-        const userId = req.userId;
+        const userId = req.user?._id;
 
         if (!query) {
             res.status(400).json({
@@ -64,7 +64,7 @@ export const findByPhones = async (
 ): Promise<void> => {
     try {
         const { phones } = req.body;
-        const userId = req.userId;
+        const userId = req.user?._id;
 
         if (!phones || !Array.isArray(phones)) {
             res.status(400).json({
@@ -104,7 +104,7 @@ export const startChat = async (
 ): Promise<void> => {
     try {
         const { participantId } = req.body;
-        const userId = req.userId;
+        const userId = req.user?._id;
 
         if (!participantId) {
             res.status(400).json({
