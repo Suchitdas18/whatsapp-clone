@@ -13,6 +13,8 @@ import authRoutes from './routes/auth.routes';
 import userRoutes from './routes/user.routes';
 import chatRoutes from './routes/chat.routes';
 import messageRoutes from './routes/message.routes';
+import otpRoutes from './routes/otp.routes';
+import contactRoutes from './routes/contact.routes';
 
 // Load environment variables
 dotenv.config();
@@ -46,7 +48,9 @@ app.get('/health', (req: Request, res: Response) => {
 
 // API routes
 app.use('/api/auth', authRoutes);
+app.use('/api/otp', otpRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/contacts', contactRoutes);
 app.use('/api/chats', chatRoutes);
 app.use('/api/messages', messageRoutes);
 

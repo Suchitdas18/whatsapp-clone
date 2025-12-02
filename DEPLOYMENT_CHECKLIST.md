@@ -101,11 +101,11 @@ git push -u origin main
 
 ## 🎯 **YOUR URLs:**
 
-**Frontend:** `https://________________________.vercel.app`
+**Frontend:** `https://whatsapp-clone-d1t2.vercel.app`
 
-**Backend:** `https://________________________.onrender.com`
+**Backend:** `https://whatsapp-clone-qiwc.onrender.com`
 
-**Health Check:** `https://________________________.onrender.com/health`
+**Health Check:** `https://whatsapp-clone-qiwc.onrender.com/health`
 
 (Fill in after deployment!)
 

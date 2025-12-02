@@ -1,6 +1,7 @@
 import { Response } from 'express';
 import * as jwt from 'jsonwebtoken';
 import User from '../models/User';
+import OTP from '../models/OTP';
 import { AuthRequest } from '../middleware/auth.middleware';
 import encryptionService from '../services/encryption.service';
 
@@ -42,6 +43,22 @@ export const register = async (
             return;
         }
 
+        // Check if OTP was verified
+        const verifiedOTP = await OTP.findOne({
+            email,
+            type: 'email',
+            verified: true,
+            expiresAt: { $gt: new Date() },
+        });
+
+        if (!verifiedOTP) {
+            res.status(400).json({
+                success: false,
+                message: 'Please verify your email first',
+            });
+            return;
+        }
+
         // Generate encryption keys
         const { publicKey, privateKey } = encryptionService.generateKeyPair();
 
@@ -54,7 +71,11 @@ export const register = async (
             bio,
             publicKey,
             privateKey,
+            emailVerified: true,
         });
+
+        // Delete verified OTP
+        await OTP.deleteOne({ _id: verifiedOTP._id });
 
         // Generate token
         const token = generateToken(user._id.toString());

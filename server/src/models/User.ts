@@ -6,6 +6,7 @@ export interface IUser extends Document {
     name: string;
     email: string;
     password: string;
+    phone?: string;
     avatar?: string;
     bio?: string;
     publicKey: string;
@@ -13,6 +14,8 @@ export interface IUser extends Document {
     isOnline: boolean;
     lastSeen: Date;
     socketId?: string;
+    emailVerified: boolean;
+    phoneVerified: boolean;
     createdAt: Date;
     updatedAt: Date;
     comparePassword(candidatePassword: string): Promise<boolean>;
@@ -40,6 +43,12 @@ const userSchema = new Schema<IUser>(
             required: [true, 'Password is required'],
             minlength: [6, 'Password must be at least 6 characters'],
             select: false,
+        },
+        phone: {
+            type: String,
+            trim: true,
+            sparse: true, // Allow multiple null values but enforce uniqueness for non-null
+            unique: true,
         },
         avatar: {
             type: String,
@@ -70,6 +79,14 @@ const userSchema = new Schema<IUser>(
         socketId: {
             type: String,
             default: '',
+        },
+        emailVerified: {
+            type: Boolean,
+            default: false,
+        },
+        phoneVerified: {
+            type: Boolean,
+            default: false,
         },
     },
     {
