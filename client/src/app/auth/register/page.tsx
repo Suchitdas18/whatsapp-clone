@@ -1,31 +1,66 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useAuthStore } from '@/store/authStore';
 import api from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { MessageCircle, Loader2 } from 'lucide-react';
+import { MessageCircle, Loader2, CheckCircle } from 'lucide-react';
 
 export default function RegisterPage() {
     const router = useRouter();
+    const searchParams = useSearchParams();
     const { login } = useAuthStore();
+
+    const verified = searchParams.get('verified') === 'true';
+    const emailParam = searchParams.get('email') || '';
+
+    const [step, setStep] = useState(verified ? 2 : 1); // 1: collect email, 2: collect details
     const [formData, setFormData] = useState({
         name: '',
-        email: '',
+        email: emailParam,
         password: '',
         confirmPassword: '',
     });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
+    useEffect(() => {
+        if (verified && emailParam) {
+            setFormData(prev => ({ ...prev, email: emailParam }));
+            setStep(2);
+        }
+    }, [verified, emailParam]);
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFormData({
             ...formData,
             [e.target.name]: e.target.value,
         });
+    };
+
+    const handleSendOTP = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setError('');
+        setLoading(true);
+
+        try {
+            const response = await api.post('/otp/send-otp', {
+                email: formData.email,
+                type: 'email',
+            });
+
+            if (response.data.success) {
+                // Redirect to OTP verification
+                router.push(`/auth/verify-otp?email=${encodeURIComponent(formData.email)}&type=email`);
+            }
+        } catch (err: any) {
+            setError(err.response?.data?.message || 'Failed to send OTP');
+        } finally {
+            setLoading(false);
+        }
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -87,99 +122,135 @@ export default function RegisterPage() {
 
                 {/* Register Form */}
                 <div className="bg-card rounded-lg shadow-lg p-8 border border-border">
-                    <form onSubmit={handleSubmit} className="space-y-5">
-                        {error && (
-                            <div className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-md text-sm">
-                                {error}
-                            </div>
-                        )}
-
-                        <div className="space-y-2">
-                            <label htmlFor="name" className="text-sm font-medium text-foreground">
-                                Full Name
-                            </label>
-                            <Input
-                                id="name"
-                                name="name"
-                                type="text"
-                                placeholder="John Doe"
-                                value={formData.name}
-                                onChange={handleChange}
-                                required
-                                disabled={loading}
-                                className="w-full"
-                            />
-                        </div>
-
-                        <div className="space-y-2">
-                            <label htmlFor="email" className="text-sm font-medium text-foreground">
-                                Email Address
-                            </label>
-                            <Input
-                                id="email"
-                                name="email"
-                                type="email"
-                                placeholder="you@example.com"
-                                value={formData.email}
-                                onChange={handleChange}
-                                required
-                                disabled={loading}
-                                className="w-full"
-                            />
-                        </div>
-
-                        <div className="space-y-2">
-                            <label htmlFor="password" className="text-sm font-medium text-foreground">
-                                Password
-                            </label>
-                            <Input
-                                id="password"
-                                name="password"
-                                type="password"
-                                placeholder="••••••••"
-                                value={formData.password}
-                                onChange={handleChange}
-                                required
-                                disabled={loading}
-                                className="w-full"
-                            />
-                            <p className="text-xs text-muted-foreground">
-                                Must be at least 6 characters
-                            </p>
-                        </div>
-
-                        <div className="space-y-2">
-                            <label htmlFor="confirmPassword" className="text-sm font-medium text-foreground">
-                                Confirm Password
-                            </label>
-                            <Input
-                                id="confirmPassword"
-                                name="confirmPassword"
-                                type="password"
-                                placeholder="••••••••"
-                                value={formData.confirmPassword}
-                                onChange={handleChange}
-                                required
-                                disabled={loading}
-                                className="w-full"
-                            />
-                        </div>
-
-                        <Button
-                            type="submit"
-                            className="w-full"
-                            disabled={loading}
-                        >
-                            {loading ? (
-                                <>
-                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                    Creating account...
-                                </>
-                            ) : (
-                                'Create Account'
+                    {step === 1 ? (
+                        // Step 1: Enter Email for OTP
+                        <form onSubmit={handleSendOTP} className="space-y-5">
+                            {error && (
+                                <div className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-md text-sm">
+                                    {error}
+                                </div>
                             )}
-                        </Button>
-                    </form>
+
+                            <div className="space-y-2">
+                                <label htmlFor="email" className="text-sm font-medium text-foreground">
+                                    Email Address
+                                </label>
+                                <Input
+                                    id="email"
+                                    name="email"
+                                    type="email"
+                                    placeholder="you@example.com"
+                                    value={formData.email}
+                                    onChange={handleChange}
+                                    required
+                                    disabled={loading}
+                                    className="w-full"
+                                />
+                                <p className="text-xs text-muted-foreground">
+                                    We'll send you a verification code
+                                </p>
+                            </div>
+
+                            <Button
+                                type="submit"
+                                className="w-full"
+                                disabled={loading}
+                            >
+                                {loading ? (
+                                    <>
+                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                        Sending code...
+                                    </>
+                                ) : (
+                                    'Continue'
+                                )}
+                            </Button>
+                        </form>
+                    ) : (
+                        // Step 2: Complete Registration
+                        <form onSubmit={handleSubmit} className="space-y-5">
+                            {error && (
+                                <div className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-md text-sm">
+                                    {error}
+                                </div>
+                            )}
+
+                            {/* Email verified indicator */}
+                            <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-400 px-4 py-3 rounded-md text-sm flex items-center gap-2">
+                                <CheckCircle className="w-4 h-4" />
+                                Email verified: {formData.email}
+                            </div>
+
+                            <div className="space-y-2">
+                                <label htmlFor="name" className="text-sm font-medium text-foreground">
+                                    Full Name
+                                </label>
+                                <Input
+                                    id="name"
+                                    name="name"
+                                    type="text"
+                                    placeholder="John Doe"
+                                    value={formData.name}
+                                    onChange={handleChange}
+                                    required
+                                    disabled={loading}
+                                    className="w-full"
+                                />
+                            </div>
+
+                            <div className="space-y-2">
+                                <label htmlFor="password" className="text-sm font-medium text-foreground">
+                                    Password
+                                </label>
+                                <Input
+                                    id="password"
+                                    name="password"
+                                    type="password"
+                                    placeholder="••••••••"
+                                    value={formData.password}
+                                    onChange={handleChange}
+                                    required
+                                    disabled={loading}
+                                    className="w-full"
+                                />
+                                <p className="text-xs text-muted-foreground">
+                                    Must be at least 6 characters
+                                </p>
+                            </div>
+
+                            <div className="space-y-2">
+                                <label htmlFor="confirmPassword" className="text-sm font-medium text-foreground">
+                                    Confirm Password
+                                </label>
+                                <Input
+                                    id="confirmPassword"
+                                    name="confirmPassword"
+                                    type="password"
+                                    placeholder="••••••••"
+                                    value={formData.confirmPassword}
+                                    onChange={handleChange}
+                                    required
+                                    disabled={loading}
+                                    className="w-full"
+                                />
+                            </div>
+
+                            <Button
+                                type="submit"
+                                className="w-full"
+                                disabled={loading}
+                            >
+                                {loading ? (
+                                    <>
+                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                        Creating account...
+                                    </>
+                                ) : (
+                                    'Create Account'
+                                )}
+                            </Button>
+                        </form>
+                    )}
 
                     <div className="mt-6 text-center">
                         <p className="text-sm text-muted-foreground">
