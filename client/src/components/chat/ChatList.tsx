@@ -1,13 +1,14 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { useAuthStore } from '@/store/authStore';
 import { useChatStore, Chat } from '@/store/chatStore';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Search, Plus, Loader2, Users } from 'lucide-react';
+import { Search, Plus, Loader2, Users, UserPlus } from 'lucide-react';
 import api from '@/lib/api';
 import {
     getChatName,
@@ -129,14 +130,16 @@ export function ChatList() {
             <div className="p-4 border-b border-border">
                 <div className="flex items-center justify-between mb-4">
                     <h1 className="text-2xl font-bold text-foreground">Chats</h1>
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        className="rounded-full"
-                        onClick={fetchChats}
-                    >
-                        <Plus className="h-5 w-5" />
-                    </Button>
+                    <Link href="/contacts">
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            className="gap-2"
+                        >
+                            <UserPlus className="h-4 w-4" />
+                            Find Contacts
+                        </Button>
+                    </Link>
                 </div>
 
                 {/* Search */}
